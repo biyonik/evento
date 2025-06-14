@@ -1,9 +1,9 @@
 import {eventService} from "@/lib/services/event.service";
 import Image from "next/image";
-import {Event} from "@/lib/models/event.model";
 import H1 from "@/components/header-one";
 import React from "react";
 import {cn} from "@/lib/utils";
+import {Event} from "@/generated/prisma/client";
 
 interface EventFromSlugPageProps {
     params: Promise<{
@@ -13,21 +13,25 @@ interface EventFromSlugPageProps {
 
 export async function generateMetadata({params}: EventFromSlugPageProps) {
     const {slug} = await params;
-    const event: Event = await eventService.getBySlug(slug);
+    const event: Event|null = await eventService.getBySlug(slug);
 
     return {
-        title: `${event.name}`
+        title: event ? event.name : "Event Not Found",
     };
 }
 
 export default async function EventFromSlugPage({params}: EventFromSlugPageProps) {
     const {slug} = await params;
-    const event: Event = await eventService.getBySlug(slug);
+    const event: Event|null = await eventService.getBySlug(slug);
+
+    if (!event) {
+        return <div className="text-center py-20">Event not found</div>;
+    }
 
     return (
         <main>
             <section className="relative overflow-hidden flex justify-center items-center py-14 md:py-20">
-                <Image src={event.imageUrl}
+                <Image src={event.imageUrl!}
                        alt={event.name}
                        fill
                        sizes="(max-width: 1280px) 100vw, 1280px"
@@ -37,7 +41,7 @@ export default async function EventFromSlugPage({params}: EventFromSlugPageProps
                 />
                 <div className="z-10 relative flex flex-col gap-6 lg:gap-16 lg:flex-row">
 
-                    <Image src={event.imageUrl}
+                    <Image src={event.imageUrl!}
                            alt={event.name}
                            width={300}
                            height={201}
