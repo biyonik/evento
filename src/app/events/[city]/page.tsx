@@ -36,6 +36,10 @@ export default async function CityEventsPage({params, searchParams}: CityEventsP
     const parsedPage = pageNumberSchema.safeParse(page);
     const capitalizedCityName: string = city.charAt(0).toUpperCase() + city.slice(1);
 
+    if (!parsedPage.success) {
+        throw new Error("Invalid page number. It must be a positive integer.")
+    }
+
     return (
         <main className="flex flex-col items-center py-24 px-[20px] min-h-[110vh]">
             <H1 className="mb-5">Events in {capitalizedCityName}</H1>
